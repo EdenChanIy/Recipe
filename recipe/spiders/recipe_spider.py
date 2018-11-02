@@ -30,11 +30,12 @@ class RSpider(scrapy.Spider):
                 # data_e = data.xpath('string(.)').extract()
                 ingredient = data.xpath(".//a/text()").extract_first()
                 numbers = data.xpath('.//span[@class="right"]/text()').extract_first()
-                content.append({
-                    '主料'+str(order): ingredient,
-                    '数量': numbers
-                })
-                order += 1
+                if ingredient:
+                    content.append({
+                        '主料'+str(order): ingredient,
+                        '数量': numbers
+                    })
+                    order += 1
             item["main_ingredient"] = content           
             #辅料
             datass = response.xpath('//table[@class="retamr"]//h3[contains(text(), "辅料")]//..//..//following-sibling::tr')
@@ -45,10 +46,11 @@ class RSpider(scrapy.Spider):
                 for data in datas:
                     ingredient = data.xpath(".//label/text() | .//a/text()").extract_first()
                     numbers = data.xpath('.//span[@class="right"]/text()').extract_first()
-                    content.append({
-                        '辅料'+str(order): ingredient,
-                        '数量': numbers
-                    })
-                    order += 1
+                    if ingredient:
+                        content.append({
+                            '辅料'+str(order): ingredient,
+                            '数量': numbers
+                        })
+                        order += 1
             item["minor_ingredient"] = content  
             return item
