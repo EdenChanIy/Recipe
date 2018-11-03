@@ -1,13 +1,23 @@
 import scrapy
+import csv
 
 from recipe.items import RecipeItem
 
 class RSpider(scrapy.Spider):
+    start_urls = []
+    csv_file = csv.reader(open('urls.csv', 'r'))
+    for i,rows in enumerate(csv_file):
+        if i != 0:
+            start_urls.append(rows[1])
+    print(start_urls)
+
     name = "toscrape"
-    start_urls = [
-        "https://www.douguo.com/cookbook/755193.html",
-        "https://www.douguo.com/cookbook/1048927.html"
-    ]
+    # start_urls = [
+    #     "https://www.douguo.com/cookbook/755193.html",
+    #     "https://www.douguo.com/cookbook/1048927.html"
+    # ]
+
+    # print(start_urls)
 
     def parse(self, response):
             item = RecipeItem()
@@ -23,34 +33,57 @@ class RSpider(scrapy.Spider):
             if response.xpath('//table[@class="retamr"]//span[contains(text(), "时间：")]').extract_first() is not None:        
                 item["time"] = response.xpath('//table[@class="retamr"]//span[contains(text(), "时间：")]//../text()').extract()[2].strip().lstrip().rstrip(',')
             #主料
-            datas = response.xpath('//table[@class="retamr"]//h3[contains(text(), "主料")]//..//..//following-sibling::tr[1]//td')
+            datass = response.xpath('//table[@class="retamr"]//h3[contains(text(), "辅料")]//..//..//preceding-sibling::tr')
             content = []
-            order = 1
-            for data in datas:
-                # data_e = data.xpath('string(.)').extract()
-                ingredient = data.xpath(".//a/text()").extract_first()
-                numbers = data.xpath('.//span[@class="right"]/text()').extract_first()
-                if ingredient:
-                    content.append({
-                        '主料'+str(order): ingredient,
-                        '数量': numbers
-                    })
-                    order += 1
-            item["main_ingredient"] = content           
+            if datass:
+                for datas in datass:
+                    datas = datass.xpath('.//td')
+                    content = []
+                    order = 1
+                    for data in datas:
+                        # data_e = data.xpath('string(.)').extract()
+                        ingredient = data.xpath(".//a/text() | .//label/text()").extract_first()
+                        numbers = data.xpath('.//span[@class="right"]/text()').extract_first()
+                        if ingredient:
+                            content.append({
+                                '主料'+str(order): ingredient,
+                                '数量': numbers
+                            })
+                            order += 1
+            else:
+                datass = response.xpath('//table[@class="retamr"]//h3[contains(text(), "主料")]//..//..//following-sibling::tr')  
+                for datas in datass:
+                    datas = datass.xpath('.//td')
+                    content = []
+                    order = 1
+                    for data in datas:
+                        # data_e = data.xpath('string(.)').extract()
+                        ingredient = data.xpath(".//a/text() | .//label/text()").extract_first()
+                        numbers = data.xpath('.//span[@class="right"]/text()').extract_first()
+                        if ingredient:
+                            content.append({
+                                '主料'+str(order): ingredient,
+                                '数量': numbers
+                            })
+                            order += 1
+            item["main_ingredient"] = content 
             #辅料
             datass = response.xpath('//table[@class="retamr"]//h3[contains(text(), "辅料")]//..//..//following-sibling::tr')
+            content_ = []
             for datas in datass:
                 datas = datass.xpath('.//td')
-                content = []
+                content_ = []
                 order = 1
                 for data in datas:
                     ingredient = data.xpath(".//label/text() | .//a/text()").extract_first()
                     numbers = data.xpath('.//span[@class="right"]/text()').extract_first()
                     if ingredient:
-                        content.append({
+                        content_.append({
                             '辅料'+str(order): ingredient,
                             '数量': numbers
                         })
                         order += 1
-            item["minor_ingredient"] = content  
+            item["minor_ingredient"] = content_  
+            #url
+            item["url"] = response.url
             return item
