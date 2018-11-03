@@ -86,4 +86,5 @@ class RSpider(scrapy.Spider):
             item["minor_ingredient"] = content_  
             #url
             item["url"] = response.url
+            item['image_urls'] = response.xpath('//img[@itemprop="image"]/@src').extract_first(),
             return item

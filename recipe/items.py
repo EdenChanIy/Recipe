@@ -25,4 +25,8 @@ class RecipeItem(scrapy.Item):
     minor_ingredient = scrapy.Field()
     #url
     url = scrapy.Field()
+
+    image_urls = scrapy.Field()
+    images = scrapy.Field()
+    image_name = scrapy.Field() #存放图片名字
     pass

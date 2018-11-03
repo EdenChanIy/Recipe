@@ -66,7 +66,10 @@ ROBOTSTXT_OBEY = True
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    'recipe.pipelines.RecipePipeline': 300,
+   'recipe.pipelines.ImagePipeline': 400,
 }
+
+IMAGES_STORE = './picture'
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html
