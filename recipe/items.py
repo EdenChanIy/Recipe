@@ -23,6 +23,10 @@ class RecipeItem(scrapy.Item):
     main_ingredient = scrapy.Field()
     #辅料
     minor_ingredient = scrapy.Field()
+    #小贴士
+    tips = scrapy.Field()
+    #分类
+    tags = scrapy.Field()
     #url
     url = scrapy.Field()
 

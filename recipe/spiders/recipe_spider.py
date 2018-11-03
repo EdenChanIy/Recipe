@@ -84,6 +84,24 @@ class RSpider(scrapy.Spider):
                         })
                         order += 1
             item["minor_ingredient"] = content_  
+            #小贴士
+            text = response.xpath('//h3[@id="tips"]//..//p/text()').extract()
+            content = ''
+            if text:
+                content = "\n".join(text)
+            item["tips"] = content
+            #分类
+            datas = response.xpath('//h4[contains(text(), "分类： ")]//..//span')
+            content = []
+            order = 1
+            if datas:
+                for data in datas:
+                    tag = data.xpath('.//a/text()').extract_first()
+                    content.append({
+                        '分类' + str(order): tag
+                    })
+                    order += 1
+            item["tags"] = content
             #url
             item["url"] = response.url
             item['image_urls'] = response.xpath('//img[@itemprop="image"]/@src').extract_first(),
