@@ -27,11 +27,15 @@ class RSpider(scrapy.Spider):
             if response.xpath('//div[@class="retew r3 pb25 mb20"]//div[@class="xtip hidden"]/text()').extract_first() is not None:
                 item["description"] = response.xpath('//div[@class="retew r3 pb25 mb20"]//div[@class="xtip hidden"]/text()').extract_first().strip()
             #难度
-            if response.xpath('//table[@class="retamr"]//tr[1]//td[@class="lirre"]/text()').extract_first() is not None:
-                item["difficulty"] = response.xpath('//table[@class="retamr"]//tr[1]//td[@class="lirre"]/text()').extract_first().strip()
+            if response.xpath('//table[@class="retamr"]//span[contains(text(), "难度：")]//../text()').extract_first() is not None:
+                item["difficulty"] = response.xpath('//table[@class="retamr"]//span[contains(text(), "难度：")]//../text()').extract()[1].strip()
             #时间
-            if response.xpath('//table[@class="retamr"]//span[contains(text(), "时间：")]').extract_first() is not None:        
-                item["time"] = response.xpath('//table[@class="retamr"]//span[contains(text(), "时间：")]//../text()').extract()[2].strip().lstrip().rstrip(',')
+            if response.xpath('//table[@class="retamr"]//span[contains(text(), "时间：")]').extract_first() is not None:
+                lens = len(response.xpath('//table[@class="retamr"]//span[contains(text(), "时间：")]//../text()').extract()) 
+                if lens > 2:        
+                    item["time"] = response.xpath('//table[@class="retamr"]//span[contains(text(), "时间：")]//../text()').extract()[2].strip().lstrip().rstrip(',')
+                else:
+                    item["time"] = response.xpath('//table[@class="retamr"]//span[contains(text(), "时间：")]//../text()').extract()[1].strip().lstrip().rstrip(',')
             #主料
             datass = response.xpath('//table[@class="retamr"]//h3[contains(text(), "辅料")]//..//..//preceding-sibling::tr')
             content = ''
@@ -49,6 +53,8 @@ class RSpider(scrapy.Spider):
                             #     '主料'+str(order): ingredient,
                             #     '数量': numbers
                             # })
+                            if numbers is None:
+                                numbers = '未知'
                             content += ingredient + ': ' + numbers + "; "
                             order += 1
             else:
@@ -66,6 +72,8 @@ class RSpider(scrapy.Spider):
                             #     '主料'+str(order): ingredient,
                             #     '数量': numbers
                             # })
+                            if numbers is None:
+                                numbers = '未知'
                             content += ingredient + ': ' + numbers + "; "
                             order += 1
             item["main_ingredient"] = content 
@@ -84,6 +92,8 @@ class RSpider(scrapy.Spider):
                         #     '辅料'+str(order): ingredient,
                         #     '数量': numbers
                         # })
+                        if numbers is None:
+                            numbers = '未知'
                         content_ += ingredient + ': ' + numbers + '; '
                         order += 1
             item["minor_ingredient"] = content_  
