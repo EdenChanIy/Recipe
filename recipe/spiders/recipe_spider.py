@@ -34,54 +34,57 @@ class RSpider(scrapy.Spider):
                 item["time"] = response.xpath('//table[@class="retamr"]//span[contains(text(), "时间：")]//../text()').extract()[2].strip().lstrip().rstrip(',')
             #主料
             datass = response.xpath('//table[@class="retamr"]//h3[contains(text(), "辅料")]//..//..//preceding-sibling::tr')
-            content = []
+            content = ''
             if datass:
                 for datas in datass:
                     datas = datass.xpath('.//td')
-                    content = []
+                    content = ''
                     order = 1
                     for data in datas:
                         # data_e = data.xpath('string(.)').extract()
                         ingredient = data.xpath(".//a/text() | .//label/text()").extract_first()
                         numbers = data.xpath('.//span[@class="right"]/text()').extract_first()
                         if ingredient:
-                            content.append({
-                                '主料'+str(order): ingredient,
-                                '数量': numbers
-                            })
+                            # content.append({
+                            #     '主料'+str(order): ingredient,
+                            #     '数量': numbers
+                            # })
+                            content += ingredient + ': ' + numbers + "; "
                             order += 1
             else:
                 datass = response.xpath('//table[@class="retamr"]//h3[contains(text(), "主料")]//..//..//following-sibling::tr')  
                 for datas in datass:
                     datas = datass.xpath('.//td')
-                    content = []
+                    content = ''
                     order = 1
                     for data in datas:
                         # data_e = data.xpath('string(.)').extract()
                         ingredient = data.xpath(".//a/text() | .//label/text()").extract_first()
                         numbers = data.xpath('.//span[@class="right"]/text()').extract_first()
                         if ingredient:
-                            content.append({
-                                '主料'+str(order): ingredient,
-                                '数量': numbers
-                            })
+                            # content.append({
+                            #     '主料'+str(order): ingredient,
+                            #     '数量': numbers
+                            # })
+                            content += ingredient + ': ' + numbers + "; "
                             order += 1
             item["main_ingredient"] = content 
             #辅料
             datass = response.xpath('//table[@class="retamr"]//h3[contains(text(), "辅料")]//..//..//following-sibling::tr')
-            content_ = []
+            content_ = ''
             for datas in datass:
                 datas = datass.xpath('.//td')
-                content_ = []
+                content_ = ''
                 order = 1
                 for data in datas:
                     ingredient = data.xpath(".//label/text() | .//a/text()").extract_first()
                     numbers = data.xpath('.//span[@class="right"]/text()').extract_first()
                     if ingredient:
-                        content_.append({
-                            '辅料'+str(order): ingredient,
-                            '数量': numbers
-                        })
+                        # content_.append({
+                        #     '辅料'+str(order): ingredient,
+                        #     '数量': numbers
+                        # })
+                        content_ += ingredient + ': ' + numbers + '; '
                         order += 1
             item["minor_ingredient"] = content_  
             #小贴士
@@ -92,14 +95,15 @@ class RSpider(scrapy.Spider):
             item["tips"] = content
             #分类
             datas = response.xpath('//h4[contains(text(), "分类： ")]//..//span')
-            content = []
+            content = ''
             order = 1
             if datas:
                 for data in datas:
                     tag = data.xpath('.//a/text()').extract_first()
-                    content.append({
-                        '分类' + str(order): tag
-                    })
+                    # content.append({
+                    #     '分类' + str(order): tag
+                    # })
+                    content += tag + ';'
                     order += 1
             item["tags"] = content
             #url
